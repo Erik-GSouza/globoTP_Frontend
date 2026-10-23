@@ -1,0 +1,112 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TPGlobo - Roteiros</title>
+
+    <link rel="stylesheet" href="./src/css/styles.css">
+</head>
+<body>
+
+    <header class="cabecalho">
+        <div class="identidade">
+            <span class="icone-marca" aria-hidden="true">▣</span>
+            <span>TP Inteligente</span>
+        </div>
+
+        <span class="secao-atual">Roteiros</span>
+    </header>
+
+    <main class="pagina">
+
+        <div class="titulo-pagina">
+            <h1>Gerenciamento de roteiros</h1>
+            <p>Interface inicial para organização dos roteiros.</p>
+        </div>
+
+        <p class="aviso">
+            Protótipo visual — funcionalidades e integração
+            com o backend ainda não implementadas nesta versão.
+        </p>
+
+        <div class="layout-roteiros">
+
+            <!-- Lista de roteiros: exemplos estáticos -->
+            <section class="painel" aria-labelledby="tituloLista">
+
+                <div class="painel-topo">
+                    <h2 id="tituloLista">Lista de roteiros</h2>
+                    <span class="legenda">Exemplos visuais</span>
+                </div>
+
+                <div class="lista-roteiros">
+
+                    <article class="cartao-roteiro">
+                        <h3>Notícias da manhã</h3>
+                        <p>
+                            Bom dia! Confira agora as principais
+                            notícias desta manhã...
+                        </p>
+                    </article>
+
+                    <article class="cartao-roteiro">
+                        <h3>Boletim cultural</h3>
+                        <p>
+                            Confira os destaques da programação
+                            cultural desta semana...
+                        </p>
+                    </article>
+
+                </div>
+
+            </section>
+
+            <!-- Editor: apenas demonstração visual -->
+            <section class="painel" aria-labelledby="tituloEditor">
+
+                <div class="painel-topo">
+                    <h2 id="tituloEditor">Editor de roteiros</h2>
+                    <span class="legenda">Prévia visual</span>
+                </div>
+
+                <div class="campo">
+                    <label for="tituloRoteiro">Título</label>
+
+                    <input
+                        type="text"
+                        id="tituloRoteiro"
+                        value="Notícias da manhã"
+                        readonly
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="conteudoRoteiro">Conteúdo</label>
+
+                    <textarea
+                        id="conteudoRoteiro"
+                        rows="12"
+                        readonly
+                    >Bom dia!
+
+Confira agora as principais notícias desta manhã.
+
+Este texto é apenas um exemplo visual do editor de roteiros.</textarea>
+                </div>
+
+                <p class="observacao">
+                    A edição e o salvamento serão integrados
+                    quando o backend estiver disponível.
+                </p>
+
+            </section>
+
+        </div>
+
+    </main>
+
+</body>
+</html>

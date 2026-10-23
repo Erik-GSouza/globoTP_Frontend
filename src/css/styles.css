@@ -1,0 +1,354 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background-color: #0b0e13;
+    color: #e5e7eb;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* Cabeçalho */
+
+.cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 24px 32px;
+    background-color: #11151b;
+    border-bottom: 1px solid #29313e;
+}
+
+.identidade {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.icone-marca {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    background-color: #182d4e;
+    border: 1px solid #2860b4;
+    border-radius: 8px;
+    color: #60a5fa;
+    font-size: 24px;
+}
+
+.secao-atual {
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+/* area main */
+
+.pagina {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 32px;
+}
+
+.titulo-pagina {
+    margin-bottom: 24px;
+}
+
+.titulo-pagina h1 {
+    margin: 0 0 8px;
+    font-size: 26px;
+}
+
+.titulo-pagina p {
+    margin: 0;
+    color: #94a3b8;
+}
+
+.aviso {
+    margin: 0 0 24px;
+    padding: 14px 18px;
+    background-color: #14243b;
+    border: 1px solid #2860b4;
+    border-radius: 8px;
+    color: #b9d8ff;
+}
+
+/* organizaçao dos paineis */
+.layout-roteiros {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: 24px;
+}
+
+.painel {
+    min-width: 0;
+    padding: 24px;
+    background-color: #11151b;
+    border: 1px solid #29313e;
+    border-radius: 12px;
+}
+
+.painel-topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #29313e;
+}
+
+.painel-topo h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.legenda {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+/* lista roteiros */
+.lista-roteiros {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.cartao-roteiro {
+    padding: 18px;
+    background-color: #191e26;
+    border: 1px solid #303846;
+    border-radius: 8px;
+}
+
+.cartao-roteiro h3 {
+    margin: 0 0 10px;
+    font-size: 16px;
+}
+
+.cartao-roteiro p {
+    margin: 0;
+    color: #aab4c3;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* form */
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.campo label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.campo input,
+.campo textarea {
+    width: 100%;
+    padding: 14px;
+    background-color: #0b0e13;
+    border: 1px solid #303846;
+    border-radius: 8px;
+    color: #e5e7eb;
+    font-family: inherit;
+    font-size: 15px;
+}
+
+.campo textarea {
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.campo input:focus,
+.campo textarea:focus {
+    outline: 2px solid #2860b4;
+    outline-offset: 2px;
+}
+
+.observacao {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.acoes-formulario {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+#botaoSalvar {
+    padding: 12px 20px;
+    background-color: #2860b4;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#botaoSalvar:hover {
+    background-color: #3478d4;
+}
+
+#botaoSalvar:focus-visible {
+    outline: 2px solid #60a5fa;
+    outline-offset: 3px;
+}
+
+#botaoSalvar:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* mensagens de retorno */
+#mensagemFormulario {
+    margin-top: 16px;
+    font-size: 14px;
+}
+
+.mensagem-sucesso {
+    color: #4ade80;
+}
+
+.mensagem-erro {
+    color: #f87171;
+}
+
+.botao-secundario,
+.botao-visualizar {
+    padding: 9px 14px;
+    background-color: #182d4e;
+    color: #b9d8ff;
+    border: 1px solid #2860b4;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.botao-secundario:hover,
+.botao-visualizar:hover {
+    background-color: #24416b;
+}
+
+.botao-secundario:focus-visible,
+.botao-visualizar:focus-visible {
+    outline: 2px solid #60a5fa;
+    outline-offset: 3px;
+}
+
+.botao-visualizar {
+    margin-top: 14px;
+}
+
+.cartao-roteiro.selecionado {
+    background-color: #15243a;
+    border-color: #2860b4;
+}
+
+.campo input[readonly],
+.campo textarea[readonly] {
+    background-color: #151a23;
+    color: #d4dae4;
+}
+
+.acoes-formulario {
+    gap: 12px;
+}
+
+.acoes-cartao {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.botao-editar {
+    padding: 9px 14px;
+    background-color: #182d4e;
+    color: #b9d8ff;
+    border: 1px solid #2860b4;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.botao-editar:hover {
+    background-color: #24416b;
+}
+
+.botao-editar:focus-visible {
+    outline: 2px solid #60a5fa;
+    outline-offset: 3px;
+}
+
+.acoes-cartao .botao-visualizar {
+    margin-top: 0;
+}
+
+.botao-excluir {
+    padding: 9px 14px;
+    background-color: #3b1d25;
+    color: #fca5a5;
+    border: 1px solid #914052;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.botao-excluir:hover {
+    background-color: #572631;
+}
+
+.botao-excluir:focus-visible {
+    outline: 2px solid #f87171;
+    outline-offset: 3px;
+}
+
+.botao-excluir:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+
+
+@media (max-width: 850px) {
+    .layout-roteiros {
+        grid-template-columns: 1fr;
+    }
+
+    .pagina {
+        padding: 20px;
+    }
+
+    .painel {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .cabecalho {
+        padding: 16px;
+    }
+
+    .identidade {
+        font-size: 16px;
+    }
+
+    .titulo-pagina h1 {
+        font-size: 22px;
+    }
+}
