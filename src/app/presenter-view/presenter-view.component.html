@@ -1,0 +1,30 @@
+<main class="presenter-surface" [attr.aria-label]="'Visão do apresentador: ' + title">
+  <div class="presenter-tools">
+    @if (!external) {
+      <button class="button back-button" type="button" (click)="back.emit()">
+        <svg class="ui-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m11 5-5 5 5 5M6 10h10" /></svg>
+        Voltar ao operador
+      </button>
+    }
+    <button class="button" type="button" [disabled]="isChangingFullscreen()" (click)="toggleFullscreen()">
+      <svg class="ui-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 3H3v4m10-4h4v4M3 13v4h4m6 0h4v-4" /></svg>
+      {{ isFullscreen() ? 'Sair da tela cheia' : 'Tela cheia' }}
+    </button>
+    @if (external) {
+      <button class="button" type="button" (click)="close.emit()">Fechar</button>
+    }
+  </div>
+  @if (fullscreenNotice(); as message) {
+    <p class="fullscreen-notice" role="status">{{ message }}</p>
+  }
+  <tp-script-reader
+    [lines]="reader.lines"
+    [fontSize]="settings.fontSize"
+    [lineHeight]="settings.lineHeight"
+    [highContrast]="settings.highContrast"
+    [mirrorHorizontal]="settings.mirrorHorizontal"
+    [mirrorVertical]="settings.mirrorVertical"
+    [currentWordIndex]="index"
+    [clean]="true"
+  />
+</main>

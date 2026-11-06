@@ -1,0 +1,131 @@
+:host {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  container-type: size;
+}
+
+.reader-surface {
+  position: relative;
+  height: 100%;
+  min-width: 0;
+  background: var(--panel-background);
+  --reading-text: var(--text-primary);
+  --read-color: var(--text-read);
+}
+
+.script-scroll {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: #323946 transparent;
+  overscroll-behavior: contain;
+  overflow-anchor: none;
+}
+
+.script-scroll:focus-visible {
+  outline: 2px solid #79afff;
+  outline-offset: -4px;
+}
+
+.reading-line {
+  position: absolute;
+  top: 35%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #458bff55;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.script-content {
+  /* Symmetric viewport padding leaves alignment room at either mirrored endpoint. */
+  padding: 100cqh 28px;
+  transform-origin: center;
+}
+
+.script-line {
+  position: relative;
+  margin: 0;
+  padding: 22px 28px;
+  font-size: inherit;
+  line-height: inherit;
+  font-weight: 450;
+  letter-spacing: -0.8px;
+}
+
+.script-word {
+  display: inline-block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  color: var(--reading-text);
+  vertical-align: baseline;
+}
+
+button.script-word {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.script-word.is-read {
+  color: var(--read-color);
+}
+
+.script-word.is-current {
+  background: var(--current-word-background);
+  border-radius: 5px;
+  box-shadow: 0 0 0 3px var(--current-word-background);
+}
+
+.is-high-contrast {
+  background: #000;
+  --reading-text: #fff;
+  --read-color: #fff;
+}
+
+.is-clean .script-word {
+  color: var(--reading-text);
+  background: transparent;
+  box-shadow: none;
+}
+
+.is-clean .reading-line {
+  background: #ffffff12;
+}
+
+.is-clean .script-scroll {
+  scrollbar-width: none;
+}
+
+@media (max-width: 1100px) {
+  .script-content {
+    padding-inline: 18px;
+  }
+
+  .script-line {
+    padding: 18px 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .script-content {
+    padding-inline: 10px;
+  }
+
+  .script-line {
+    padding: 16px 10px;
+    letter-spacing: -0.4px;
+  }
+}

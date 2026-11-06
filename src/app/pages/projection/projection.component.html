@@ -1,0 +1,21 @@
+@if (receiver.script(); as script) {
+  <tp-presenter-view
+    [reader]="receiver.reader()"
+    [title]="script.title"
+    [index]="receiver.index()"
+    [settings]="receiver.settings()"
+    [external]="true"
+    (close)="closeWindow()"
+  />
+} @else {
+  <main class="projection-empty">
+    <span class="projection-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M5 5h14v11H5zM9 20h6M12 16v4M8 9h8M8 12h5" /></svg>
+    </span>
+    <h1>{{ receiver.phase() === 'ended' ? 'Apresentação encerrada' : receiver.phase() === 'lost' ? 'Apresentação interrompida' : 'Visão do apresentador' }}</h1>
+    <p role="status">{{ receiver.message() }}</p>
+    @if (canClose) {
+      <button class="button" type="button" (click)="closeWindow()">Fechar</button>
+    }
+  </main>
+}
