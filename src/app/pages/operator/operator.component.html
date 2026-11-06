@@ -1,0 +1,161 @@
+@if (presentation.view() === 'presenter') {
+  <tp-presenter-view
+    [reader]="presentation.reader()"
+    [title]="presentation.active()?.script?.title ?? ''"
+    [index]="presentation.index()"
+    [settings]="presentation.presenterSettings()"
+    (back)="presentation.setView('operator')"
+  />
+} @else {
+  <main class="operator-screen">
+    <nav class="view-switch-bar" aria-label="Navegação da apresentação">
+      <a class="operator-link back-link" routerLink="/roteiros">
+        <svg class="ui-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m11 5-5 5 5 5M6 10h10" /></svg>
+        Voltar aos roteiros
+      </a>
+      <div class="view-switch" role="group" aria-label="Visão da apresentação">
+        <button type="button" aria-pressed="true" (click)="presentation.setView('operator')">Visão do Operador</button>
+        <button type="button" aria-pressed="false" (click)="presentation.setView('presenter')">Visão do Apresentador</button>
+      </div>
+      <button class="operator-link logout-link" type="button" (click)="logout()">Sair</button>
+    </nav>
+
+    <header class="top-bar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M5 5h14v11H5zM9 20h6M12 16v4M8 9h8M8 12h5" /></svg>
+        </span>
+        <h1>TP <span>Inteligente</span></h1>
+      </div>
+      <div class="program-selector">
+        <label class="field-label" for="program">ROTEIRO</label>
+        <select id="program" aria-label="Roteiro selecionado" [attr.title]="script().title">
+          <option>{{ script().title }}</option>
+        </select>
+        <svg aria-hidden="true" viewBox="0 0 16 16" fill="none"><path d="m5 6 3 3 3-3" /></svg>
+      </div>
+      <div class="broadcast-info">
+        <span class="live-badge"><span aria-hidden="true"></span>APRESENTAÇÃO</span>
+        <span class="header-divider" aria-hidden="true"></span>
+        <time class="clock" [attr.datetime]="time().toISOString()">{{ clockText() }}</time>
+      </div>
+    </header>
+
+    @if (session.expired()) { <p class="notice notice-warning" role="alert">Sua sessão terminou. A apresentação foi encerrada. Entre novamente para continuar.</p> }
+    <div class="workspace">
+      <section class="script-panel" aria-labelledby="script-title">
+        <div class="panel-heading reader-heading">
+          <div class="panel-title">
+            <svg class="ui-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M5 2.5h7l3 3v12H5zM12 2.5v4h3M8 10h4M8 13h4" /></svg>
+            <div>
+              <h2 id="script-title">Roteiro</h2>
+              <span class="line-count">{{ presentation.reader().lines.length }} parágrafos · {{ presentation.totalWords() }} palavras</span>
+            </div>
+          </div>
+          <span class="tracking-badge" [class.is-following]="presentation.state() === 'running'" role="status">
+            <span aria-hidden="true"></span>{{ presentation.stateLabel() }}
+          </span>
+        </div>
+        <tp-script-reader
+          [lines]="presentation.reader().lines"
+          [fontSize]="presentation.operatorSettings().fontSize"
+          [lineHeight]="presentation.operatorSettings().lineHeight"
+          [highContrast]="presentation.operatorSettings().highContrast"
+          [currentWordIndex]="presentation.index()"
+          [interactive]="true"
+          (wordSelected)="presentation.seek($event)"
+        />
+        <div class="reading-controls" role="group" aria-label="Controles da leitura">
+          <div class="control-buttons">
+            <button
+              class="button button-primary reading-button"
+              type="button"
+              [disabled]="presentation.state() === 'completed' || presentation.mode() === 'manual' || !session.account()"
+              (click)="presentation.toggle()"
+            >
+              <svg class="ui-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                @if (presentation.state() === 'running') { <path d="M7 4v12M13 4v12" /> }
+                @else { <path d="m7 4 9 6-9 6V4Z" /> }
+              </svg>
+              {{ presentation.mode() === 'manual' ? 'Controle manual' : presentation.toggleLabel() }}
+            </button>
+            <button class="button" type="button" [disabled]="presentation.index() === 0" (click)="presentation.step(-1)">
+              <svg class="ui-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m12 5-5 5 5 5" /></svg>
+              Palavra anterior
+            </button>
+            <button class="button" type="button" [disabled]="presentation.index() >= presentation.totalWords()" (click)="presentation.step(1)">
+              Próxima palavra
+              <svg class="ui-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m8 5 5 5-5 5" /></svg>
+            </button>
+            <button class="button reset-button" type="button" (click)="presentation.restart()">Reiniciar</button>
+          </div>
+          <p class="shortcut-hint"><kbd>Espaço</kbd> inicia/pausa · <kbd>Setas</kbd> mudam a palavra · <kbd>Home</kbd> reinicia</p>
+          <footer class="progress-footer">
+            <div class="progress-caption"><span>Progresso do roteiro</span><span class="progress-value">{{ presentation.progress() }}<span>%</span></span></div>
+            <div class="progress-track" role="progressbar" aria-label="Progresso do roteiro" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="presentation.progress()">
+              <div class="progress-fill" [style.width.%]="presentation.progress()"></div>
+            </div>
+          </footer>
+        </div>
+      </section>
+
+      <aside class="settings-panel" aria-labelledby="settings-title">
+        <div class="panel-heading"><h2 id="settings-title">Ajustes de leitura</h2><span class="mode-label">{{ presentation.mode() === 'voice' ? 'Voz' : 'Manual' }}</span></div>
+        <div class="projection-actions">
+          <button class="button button-primary" type="button" (click)="projection.open()">
+            <svg class="ui-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 5H3v12h12v-4M11 3h6v6m0-6-8 8" /></svg>
+            Abrir apresentador em outra janela
+          </button>
+          @if (projection.notice(); as message) { <p class="projection-notice" role="status">{{ message }}</p> }
+        </div>
+        <div class="settings-scroll">
+          <div class="mode-control">
+            <label for="reading-mode">Modo de leitura</label>
+            <select id="reading-mode" class="text-input" [value]="presentation.mode()" (change)="setReadingMode($event)">
+              <option value="voice" [disabled]="!presentation.speech.supported">Acompanhar minha voz</option>
+              <option value="manual">Controle manual</option>
+            </select>
+            <p class="setting-note">Na leitura por voz, o texto avança conforme as palavras reconhecidas. Selecionar uma palavra pausa a escuta.</p>
+            @if (!presentation.speech.supported) { <p class="notice notice-warning">Reconhecimento de voz indisponível neste navegador. Os controles manuais continuam disponíveis.</p> }
+          </div>
+
+          <fieldset class="settings-group">
+            <legend>Operador</legend>
+            <div class="setting-label"><label for="operator-font-size">Tamanho da fonte (operador)</label><output for="operator-font-size">{{ presentation.operatorSettings().fontSize }} px</output></div>
+            <input id="operator-font-size" type="range" min="28" max="96" step="1" [value]="presentation.operatorSettings().fontSize" [attr.aria-valuetext]="presentation.operatorSettings().fontSize + ' pixels'" (input)="presentation.setFontSize('operator', inputNumber($event))" />
+            <div class="setting-label"><label for="operator-line-height">Espaçamento entre linhas (operador)</label><output for="operator-line-height">{{ formatSpacing(presentation.operatorSettings().lineHeight) }}</output></div>
+            <input id="operator-line-height" type="range" min="1.2" max="2" step="0.05" [value]="presentation.operatorSettings().lineHeight" (input)="presentation.setLineHeight('operator', inputNumber($event))" />
+            <label class="check-setting"><input type="checkbox" [checked]="presentation.operatorSettings().highContrast" (change)="presentation.setContrast('operator', inputChecked($event))" />Alto contraste (operador)</label>
+          </fieldset>
+
+          <fieldset class="settings-group">
+            <legend>Apresentador</legend>
+            <div class="setting-label"><label for="presenter-font-size">Tamanho da fonte (apresentador)</label><output for="presenter-font-size">{{ presentation.presenterSettings().fontSize }} px</output></div>
+            <input id="presenter-font-size" type="range" min="28" max="144" step="1" [value]="presentation.presenterSettings().fontSize" [attr.aria-valuetext]="presentation.presenterSettings().fontSize + ' pixels'" (input)="presentation.setFontSize('presenter', inputNumber($event))" />
+            <div class="setting-label"><label for="presenter-line-height">Espaçamento entre linhas (apresentador)</label><output for="presenter-line-height">{{ formatSpacing(presentation.presenterSettings().lineHeight) }}</output></div>
+            <input id="presenter-line-height" type="range" min="1.2" max="2" step="0.05" [value]="presentation.presenterSettings().lineHeight" (input)="presentation.setLineHeight('presenter', inputNumber($event))" />
+            <label class="check-setting"><input type="checkbox" [checked]="presentation.presenterSettings().highContrast" (change)="presentation.setContrast('presenter', inputChecked($event))" />Alto contraste (apresentador)</label>
+            <label class="check-setting"><input type="checkbox" [checked]="presentation.presenterSettings().mirrorHorizontal" (change)="presentation.setMirror('horizontal', inputChecked($event))" />Espelhar horizontalmente</label>
+            <label class="check-setting"><input type="checkbox" [checked]="presentation.presenterSettings().mirrorVertical" (change)="presentation.setMirror('vertical', inputChecked($event))" />Espelhar verticalmente</label>
+          </fieldset>
+
+          <section class="voice-status" aria-labelledby="voice-status-title">
+            <h3 id="voice-status-title">Acompanhamento por voz</h3>
+            <p role="status">{{ presentation.speech.phase() === 'listening' ? 'Microfone em uso' : presentation.speech.phase() === 'starting' ? 'Conectando microfone…' : 'Microfone desligado' }}</p>
+            @if (presentation.speech.notice(); as message) { <p class="notice notice-warning" role="alert">{{ message }}</p> }
+            @if (presentation.speech.transcript(); as text) { <p class="recognized-text"><span>Último trecho reconhecido</span>{{ text }}</p> }
+            @if (presentation.matchFound() === false && presentation.state() === 'running') { <p class="setting-note" role="status">Aguardando correspondência com o roteiro. A posição foi mantida.</p> }
+            <p class="setting-note">A escuta começa ao clicar em iniciar. O serviço do navegador pode enviar o áudio para processamento online. Não gravamos áudio nem salvamos a transcrição.</p>
+          </section>
+          @if (productionNotes().length > 0) {
+            <details class="production-notes"><summary>Notas de produção</summary>
+              @for (block of productionNotes(); track $index) { <p><strong>{{ blockTypeLabel(block.tipo) }}</strong> · {{ plainText(block.texto) }}</p> }
+              <p class="setting-note">As notas não são lidas pelo acompanhamento de voz.</p>
+            </details>
+          }
+        </div>
+      </aside>
+    </div>
+
+  </main>
+}

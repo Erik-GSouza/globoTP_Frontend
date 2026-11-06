@@ -1,0 +1,181 @@
+<div class="scripts-screen">
+  <header class="app-header">
+    <div class="app-brand" aria-label="TP Inteligente">
+      <span class="app-brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M5 5h14v11H5zM9 20h6M12 16v4M8 9h8M8 12h5" /></svg>
+      </span>
+      <span class="app-brand-name">TP <span>Inteligente</span></span>
+    </div>
+    <div class="header-actions">
+      <span class="access-chip header-account"><span aria-hidden="true"></span>{{ session.account()?.nome ?? "Sessão encerrada" }}</span>
+      <button class="button" type="button" [disabled]="isBusy()" (click)="logout()">
+        <svg class="ui-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M8 4H4v12h4m3-10 4 4-4 4M8 10h8" /></svg>
+        Sair
+      </button>
+    </div>
+  </header>
+
+  <main class="scripts-main">
+    <div class="page-heading">
+      <div>
+        <h1>Roteiros</h1>
+        <p>Prepare e organize sua próxima leitura.</p>
+      </div>
+      <button class="button button-primary" type="button" [disabled]="isBusy() || loading() || !session.account() || mode() === 'new'" (click)="newScript()">
+        <svg class="ui-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 4v12M4 10h12" /></svg>
+        Novo roteiro
+      </button>
+    </div>
+
+    @if (session.expired()) {
+      <p class="notice notice-warning page-notice" role="alert">Sua sessão terminou. O rascunho continua nesta tela. Copie o conteúdo antes de sair e entrar novamente.</p>
+    }
+    @if (notice(); as message) {
+      <p
+        class="notice page-notice"
+        [class.notice-success]="message.tone === 'success'"
+        [class.notice-error]="message.tone === 'error'"
+        [attr.role]="message.tone === 'error' ? 'alert' : 'status'"
+      >{{ message.text }}</p>
+    }
+
+    <div class="scripts-grid">
+      <section class="list-panel" aria-labelledby="list-title">
+        <div class="list-heading">
+          <h2 id="list-title">Seus roteiros</h2><button class="button refresh-button" type="button" [disabled]="loading() || isBusy() || !session.account()" (click)="refresh()" aria-label="Atualizar lista">↻</button>
+          <span class="record-count" aria-label="Quantidade de roteiros">{{ store.scripts().length }}</span>
+        </div>
+        <div class="search-field form-field">
+          <label for="script-search">Buscar pelo título</label>
+          <div class="search-input">
+            <svg class="ui-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5" /><path d="m12.5 12.5 4 4" /></svg>
+            <input id="script-search" class="text-input" type="search" placeholder="Buscar roteiro…" [formControl]="search" />
+          </div>
+        </div>
+        @if (loading()) {
+          <p class="list-empty" role="status">Carregando roteiros…</p>
+        } @else if (loadFailed()) {
+          <div class="list-empty"><h3>Não foi possível carregar</h3><p>Confira a conexão e use Atualizar lista para tentar novamente.</p></div>
+        } @else if (store.scripts().length === 0) {
+          <div class="list-empty">
+            <svg class="ui-icon empty-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 2.5h7l3 3v12H5zM12 2.5v4h3M8 10h4M8 13h4" /></svg>
+            <h3>Nenhum roteiro cadastrado</h3>
+            <p>Crie seu primeiro roteiro para começar.</p>
+            <button class="button button-primary" type="button" [disabled]="isBusy() || loading() || !session.account() || mode() === 'new'" (click)="newScript()">Criar primeiro roteiro</button>
+          </div>
+        } @else if (filteredScripts().length === 0) {
+          <div class="list-empty">
+            <h3>Nenhum roteiro encontrado</h3>
+            <p>Tente buscar por outro título.</p>
+          </div>
+        } @else {
+          <ul class="script-list" aria-label="Roteiros cadastrados">
+            @for (script of filteredScripts(); track script.id) {
+              <li>
+                <button
+                  class="script-entry"
+                  type="button"
+                  [class.is-selected]="selectedId() === script.id && mode() !== 'new'"
+                  [attr.aria-pressed]="selectedId() === script.id && mode() !== 'new'"
+                  [disabled]="isBusy()"
+                  (click)="selectScript(script.id)"
+                >
+                  <span class="entry-title">{{ script.title }}</span>
+                  <span class="entry-preview">{{ preview(script.content) }}</span>
+                  <span class="entry-date">Atualizado em {{ formatDate(script.updatedAt) }}</span>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <section class="detail-panel" aria-label="Consulta e edição de roteiro">
+        @if (mode() !== 'view') {
+          <header class="detail-heading">
+            <div class="detail-title"><span class="panel-eyebrow">{{ mode() === 'edit' ? 'EDITAR ROTEIRO' : 'NOVO ROTEIRO' }}</span><h2>{{ mode() === 'edit' ? 'Editar roteiro' : 'Criar roteiro' }}</h2><p>{{ mode() === 'edit' ? 'Altere o título, a categoria ou os blocos existentes.' : 'Preencha o título, a categoria e os blocos.' }}</p></div>
+          </header>
+          <form class="editor-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+            <div class="form-field">
+              <label for="script-title">Título</label>
+              <input id="script-title" class="text-input" formControlName="title" maxlength="160" placeholder="Ex.: Telejornal da Noite" [readonly]="isBusy()" [attr.aria-invalid]="form.controls.title.invalid && (form.controls.title.touched || submitted())" />
+              @if (form.controls.title.invalid && (form.controls.title.touched || submitted())) { <p class="field-error" role="alert">Informe um título entre 3 e 160 caracteres.</p> }
+            </div>
+            <div class="form-field">
+              <label for="script-category">Categoria</label>
+              <select id="script-category" class="text-input" formControlName="category" [attr.disabled]="isBusy() ? '' : null" [attr.aria-invalid]="form.controls.category.invalid && submitted()">
+                <option value="">Selecione uma categoria</option>
+                @for (category of categories; track category[0]) { <option [value]="category[0]">{{ category[1] }}</option> }
+              </select>
+              @if (form.controls.category.invalid && submitted()) { <p class="field-error" role="alert">Selecione uma categoria.</p> }
+            </div>
+            <div class="blocks-heading"><h3>Blocos do roteiro</h3><button class="button" type="button" [disabled]="isBusy()" (click)="addBlock()">+ Adicionar bloco</button></div>
+            <p class="editor-guidance">Blocos de fala aparecem no teleprompter. Vinhetas, pausas e orientações ficam como notas para o operador.</p>
+            <div formArrayName="blocks" class="blocks-editor">
+              @for (block of blocks.controls; track block; let i = $index) {
+                <fieldset class="block-editor" [formGroupName]="i" [disabled]="isBusy()">
+                  <legend>Bloco {{ i + 1 }}</legend>
+                  <div class="block-actions">
+                    <label [for]="'block-type-' + i">Tipo</label>
+                    <select class="text-input" [id]="'block-type-' + i" formControlName="type">@for (type of blockTypes; track type[0]) { <option [value]="type[0]">{{ type[1] }}</option> }</select>
+                    <button class="button" type="button" [disabled]="i === 0 || isBusy()" (click)="moveBlock(i, -1)" [attr.aria-label]="'Mover bloco ' + (i + 1) + ' para cima'">↑</button>
+                    <button class="button" type="button" [disabled]="i === blocks.length - 1 || isBusy()" (click)="moveBlock(i, 1)" [attr.aria-label]="'Mover bloco ' + (i + 1) + ' para baixo'">↓</button>
+                    <button class="button button-danger" type="button" [disabled]="blocks.length === 1 || isBusy()" (click)="removeBlock(i)" [attr.aria-label]="'Remover bloco ' + (i + 1)">Remover</button>
+                  </div>
+                  <label [for]="'block-text-' + i">Texto do bloco {{ i + 1 }}</label>
+                  <div class="format-toolbar" role="group" [attr.aria-label]="'Formatação do bloco ' + (i + 1)">
+                    <button class="button" type="button" [disabled]="isBusy()" (click)="applyFormat(area, i, '**')"><strong>Negrito</strong></button>
+                    <button class="button" type="button" [disabled]="isBusy()" (click)="applyFormat(area, i, '*')"><em>Itálico</em></button>
+                    <button class="button" type="button" [disabled]="isBusy()" (click)="applyFormat(area, i, '==')">Destaque</button>
+                    <button class="button" type="button" [disabled]="isBusy()" (click)="applyFormat(area, i, 'color:azul')">Azul</button>
+                    <button class="button" type="button" [disabled]="isBusy()" (click)="applyFormat(area, i, 'color:amarelo')">Amarelo</button>
+                  </div>
+                  <textarea #area class="text-input block-text" [id]="'block-text-' + i" rows="5" formControlName="text" maxlength="5000" [readonly]="isBusy()" placeholder="Escreva o conteúdo deste bloco." [attr.aria-invalid]="block.controls.text.invalid && (block.controls.text.touched || submitted())"></textarea>
+                  <small>{{ block.controls.text.value.length }}/5000 caracteres</small>
+                  @if (block.controls.text.invalid && (block.controls.text.touched || submitted())) { <p class="field-error" role="alert">Preencha o bloco com até 5.000 caracteres.</p> }
+                  @if (block.controls.text.value) {
+                    <div class="block-preview"><span class="panel-eyebrow">PRÉVIA</span><p>@for (part of formatParts(block.controls.text.value); track $index) {<span [class]="'text-part color-' + (part.color ?? '')" [class.part-bold]="part.bold" [class.part-italic]="part.italic" [class.part-highlight]="part.highlight">{{ part.text }}</span>}</p></div>
+                  }
+                </fieldset>
+              }
+            </div>
+            <p class="editor-guidance">Selecione um trecho para formatá-lo. Os marcadores aparecem no campo de edição e a prévia mostra o resultado.</p>
+            <div class="form-actions">
+              <span class="draft-status" [class.has-changes]="hasUnsavedChanges()">{{ hasUnsavedChanges() ? 'Alterações não salvas' : 'Nenhuma alteração pendente' }}</span>
+              <div class="editor-buttons"><button class="button" type="button" [disabled]="isBusy()" (click)="cancelEditing()">Cancelar</button><button class="button button-primary" type="submit" [disabled]="isBusy() || loading() || !session.account()">{{ isBusy() ? 'Salvando…' : (mode() === 'edit' ? 'Salvar alterações' : 'Salvar') }}</button></div>
+            </div>
+          </form>
+        } @else if (selectedScript(); as script) {
+          <header class="detail-heading">
+            <div class="detail-title">
+              <span class="panel-eyebrow">CONSULTA</span>
+              <h2>{{ script.title }}</h2>
+              <p>{{ categoryLabel(script.category) }} · Atualizado em {{ formatDate(script.updatedAt) }}</p>
+            </div>
+            <div class="detail-actions">
+              <button class="button" type="button" [disabled]="isBusy() || loading()" (click)="editScript()">Editar</button>
+              <button class="button button-danger" type="button" [disabled]="isBusy() || loading()" (click)="archiveScript()">Arquivar</button>
+              <button class="button button-primary" type="button" [disabled]="isBusy()" (click)="present()">
+                <svg class="ui-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m7 4 9 6-9 6V4Z" /></svg>
+                Apresentar
+              </button>
+            </div>
+          </header>
+          <div class="script-document" aria-label="Conteúdo salvo do roteiro">
+            @for (block of script.blocks; track $index) {
+              <section class="saved-block"><span class="panel-eyebrow">BLOCO {{ $index + 1 }} · {{ blockTypeLabel(block.tipo) }}</span><p>@for (part of formatParts(block.texto); track $index) {<span [class]="'text-part color-' + (part.color ?? '')" [class.part-bold]="part.bold" [class.part-italic]="part.italic" [class.part-highlight]="part.highlight">{{ part.text }}</span>}</p></section>
+            }
+          </div>
+        } @else {
+          <div class="detail-placeholder">
+            <span class="placeholder-mark" aria-hidden="true">
+              <svg class="ui-icon" viewBox="0 0 20 20" fill="none"><path d="M5 2.5h7l3 3v12H5zM12 2.5v4h3M8 10h4M8 13h4" /></svg>
+            </span>
+            <h2>Seu próximo roteiro começa aqui</h2>
+            <p>Crie um novo roteiro ou selecione um na lista para consultar ou apresentar.</p>
+          </div>
+        }
+      </section>
+    </div>
+  </main>
+</div>

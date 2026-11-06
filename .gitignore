@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.angular/
+out-tsc/
+.env*
+*.tsbuildinfo
+*.log
+.test-build-*/
+test-results/

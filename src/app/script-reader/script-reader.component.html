@@ -1,0 +1,34 @@
+<div class="reader-surface" [class.is-high-contrast]="highContrast" [class.is-clean]="clean">
+  <div class="reading-line" aria-hidden="true"></div>
+  <div #viewport class="script-scroll" tabindex="0" aria-label="Texto do roteiro">
+    <div class="script-content" [style.font-size.px]="fontSize" [style.line-height]="lineHeight" [style.transform]="textTransform">
+      @for (line of lines; track $index) {
+        <p class="script-line">
+          @for (word of line; track word.index) {
+            @if (interactive) {
+              <button
+                type="button"
+                class="script-word"
+                [class.is-read]="word.index < currentWordIndex"
+                [class.is-current]="word.index === currentWordIndex"
+                [attr.data-word-index]="word.index"
+                [attr.aria-current]="word.index === currentWordIndex ? 'true' : null"
+                [attr.aria-label]="'Ler a partir de ' + word.text"
+                [attr.tabindex]="word.index === focusWordIndex ? 0 : -1"
+                (click)="wordSelected.emit(word.index)"
+              >@for (part of word.parts; track $index) {<span [class]="'text-part color-' + (part.color ?? '')" [class.part-bold]="part.bold" [class.part-italic]="part.italic" [class.part-highlight]="part.highlight">{{ part.text }}</span>}</button>
+            } @else {
+              <span
+                class="script-word"
+                [class.is-read]="word.index < currentWordIndex"
+                [class.is-current]="word.index === currentWordIndex"
+                [attr.data-word-index]="word.index"
+                [attr.aria-current]="word.index === currentWordIndex ? 'true' : null"
+              >@for (part of word.parts; track $index) {<span [class]="'text-part color-' + (part.color ?? '')" [class.part-bold]="part.bold" [class.part-italic]="part.italic" [class.part-highlight]="part.highlight">{{ part.text }}</span>}</span>
+            }{{ $last ? '' : ' ' }}
+          }
+        </p>
+      }
+    </div>
+  </div>
+</div>
